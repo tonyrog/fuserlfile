@@ -16,5 +16,5 @@ pass through filesystem.
     ]
     erl -config local.config -s fuserlfile
 
-Now you shoule be able to peek into the $HOME/erlfile and
-be able to inspect the Erlang a local directory in an other location.
+Now you should be able to peek into the $HOME/erlfile directory and
+be able to inspect a local root directory.
