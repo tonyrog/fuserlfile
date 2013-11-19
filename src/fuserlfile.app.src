@@ -1,0 +1,9 @@
+{ application, fuserlfile,
+  [ 
+    { description, "Pass through filesystem for Erlang." }, 
+    { vsn, "1.0" },
+    { registered, [  ] },
+    { applications, [ kernel, stdlib, fuserl ] },
+    {mod, {fuserlfile, []}}
+  ] 
+}.
