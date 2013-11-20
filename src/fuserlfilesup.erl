@@ -1,18 +1,14 @@
 -module (fuserlfilesup).
 -behaviour (supervisor).
 
--export ([ start_link/3, start_link/4, init/1 ]).
+-export ([ start_link/1, init/1 ]).
 
 %-=====================================================================-
 %-                                Public                               -
 %-=====================================================================-
 
-start_link (LinkedIn, RootDir, MountPoint) ->
-  start_link (LinkedIn, RootDir, MountPoint, "").
-
-start_link (LinkedIn, RootDir, MountPoint, MountOpts) ->
-  supervisor:start_link (?MODULE, [ LinkedIn, RootDir, MountPoint, MountOpts ]).
-
+start_link(Args) ->
+    supervisor:start_link (?MODULE, [Args]).
 
 %-=====================================================================-
 %-                         supervisor callbacks                        -
@@ -20,13 +16,12 @@ start_link (LinkedIn, RootDir, MountPoint, MountOpts) ->
 
 %% @hidden
 
-init ([ LinkedIn, RootDir, MountPoint, MountOpts ]) ->
+init([Args]) ->
   { ok,
     { { one_for_one, 3, 10 },
       [
         { fuserlfilesrv,
-          { fuserlfilesrv, start_link,
-	    [ LinkedIn, RootDir, MountPoint, MountOpts ] },
+          { fuserlfilesrv, start_link, [ Args ] },
           permanent,
           10000,
           worker,

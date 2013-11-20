@@ -19,23 +19,19 @@ start () ->
 
 start (_Type, _Args) ->
     io:format("fuserlfile: start called\n", []),
-    { ok, LinkedIn }   = application:get_env (fuserlfile, linked_in),
-    { ok, MountPoint } = application:get_env (fuserlfile, mount_point),
-    { ok, RootDir}     = application:get_env (fuserlfile, root_directory),
-    { ok, MountOpts }  = application:get_env (fuserlfile, mount_opts),
-    io:format("fuserlfile: ~p\n", [{LinkedIn,MountPoint,
-				    RootDir,MountOpts}]),
-    case application:get_env (fuserlfile, make_mount_point) of
-	{ ok, false } -> 
-	    ok;
-	_ ->
+    Args = application:get_all_env(fuserlfile),
+    case proplists:get_value(make_mount_point,Args) of
+	undefined -> ok;
+	false -> ok;
+	true ->
+	    MountPoint = proplists:get_value(mount_point,Args),
 	    io:format("make_dir: ~p\n", [MountPoint]),
-	    case file:make_dir (MountPoint) of
+	    case file:make_dir(MountPoint) of
 		ok -> ok;
 		{ error, eexist } -> ok
 	    end
     end,
-    fuserlfilesup:start_link (LinkedIn, RootDir, MountPoint, MountOpts).
+    fuserlfilesup:start_link(Args).
 
 %% @hidden
 
