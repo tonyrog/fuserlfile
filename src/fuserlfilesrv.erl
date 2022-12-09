@@ -121,7 +121,7 @@ handle_info({timeout,TRef,{close_inactive,Time0}}, State)
   when  TRef =:= State#state.tref ->
     ?debug("timeout", []),
     fh_close_inactive(Time0, State),
-    Time1 = now_to_us(os:timestamp()),
+    Time1 = system_time_us(),
     State1 = State#state { tref = undefined },
     OpenSize = ets:info(State#state.fh_open, size),
     ?debug("number of open = ~w", [OpenSize]),
@@ -575,7 +575,8 @@ fh_create_closed(Inode, Mode, State) ->
     Fh.
 
 fh_create_open(Inode, Mode, Fd, State) ->
-    Time = Fh = now_to_us(),
+    Time = system_time_us(),
+    Fh = new_file_handle(),
     E = #fh_ent { fh = Fh, fd=Fd, ino=Inode, mode=Mode, time=Time },
     State1 = fh_start_timer(Time,State),
     ets:insert(State1#state.fh_open, E),
@@ -685,7 +686,7 @@ fh_close_inactive(Time0, State) ->
       end, ok, State#state.fh_open).
 
 fh_tick(Fh, State) ->
-    Time = now_to_us(os:timestamp()),
+    Time = system_time_us(),
     ets:update_element(State#state.fh_open, Fh, {#fh_ent.time, Time}).
 
 
@@ -840,8 +841,15 @@ read_stat_(File,UseInode) ->
     end.
 
 %% now based timestamp and node uniq id's
+system_time_us() ->
+    %% now_to_us()
+    erlang:system_time(micro_seconds).
+new_file_handle() ->
+    %% now_to_us()
+    erlang:unique_integer([monotonic,positive]).
+
 now_to_us() ->
-    now_to_us(now()).
+    now_to_us(erlang:timestamp()).
 now_to_us({M,S,U}) ->
     (M*1000000+S)*1000000 + U.
 
